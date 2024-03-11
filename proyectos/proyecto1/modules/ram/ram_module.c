@@ -37,14 +37,14 @@ static struct proc_ops op_file = {
 
 static int __init mod_init(void)
 {
-    proc_create("ram_module_202110568", 0, NULL, &op_file);
+    proc_create("ram_so1_1s2024", 0, NULL, &op_file);
     printk(KERN_INFO "RAM module mounted\n");
     return 0;
 }
 
 static void __exit mod_cleanup(void)
 {
-    remove_proc_entry("ram_module", NULL);
+    remove_proc_entry("ram_so1_1s2024", NULL);
     printk(KERN_INFO "RAM module removed \n");
 }
 

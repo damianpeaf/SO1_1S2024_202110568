@@ -1,4 +1,3 @@
-import { apiUrl } from "@/utils/api"
 import { useEffect, useState } from "react"
 import { Graphviz } from 'graphviz-react';
 import {Select, SelectItem, Selection} from "@nextui-org/react";
@@ -28,7 +27,7 @@ export const Tree = () => {
 
     const getTreeInfo = async () => {
         try {
-            const resp = await fetch(apiUrl+'/cpu-info', {
+            const resp = await fetch('/api/proc-tree-info', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -45,6 +44,13 @@ export const Tree = () => {
     }
 
 
+    // TODO test this
+    const onChangeOption = async (selected: ProcessI) => {
+        setDot(null)
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        setDot(graph(selected))
+    }
+
     useEffect(() => {
         getTreeInfo()
     }, [])
@@ -52,7 +58,8 @@ export const Tree = () => {
     useEffect(() => {
         if(selectedProcess && processes) {
             const selected = processes.find((proc) => proc.pid.toString() === selectedProcess)
-            if(selected) setDot( graph(selected))
+            if(selected) onChangeOption(selected)
+
         }
     }, [selectedProcess, processes])
 
@@ -71,8 +78,6 @@ export const Tree = () => {
             window.removeEventListener("load", handleResize);
         };
     }, []);
-
-    console.log()
 
   if(!dot) return <div>Información no disponible</div>
 
@@ -95,13 +100,13 @@ export const Tree = () => {
       <Graphviz
             dot={dot}
             options={{
-                zoom: true,
                 useWorker: false,
                 engine: "dot",
                 height: (windowSize.height * 0.8),
                 width: (windowSize.width * 0.8),
                 fit: true,
                 scale: 1,
+                zoom: true,
             }}
         />
     </div>
@@ -134,7 +139,7 @@ const graphNode = (root: ProcessI) :string => {
 }
 
 const getGraphvizNode = (process: ProcessI) => {
-    return `N${process.pid} [label="${process.name}"]`
+    return `N${process.pid} [label="${process.pid} - ${process.name}" shape=box]`
 }
 
 const getGraphvizEdge = (process: ProcessI) => {
@@ -144,11 +149,7 @@ const getGraphvizEdge = (process: ProcessI) => {
 const getAllProcesses = (processes: ProcessI[]) => {
     const procs :ProcessI[] = []
     processes.forEach((proc) => {
-        if(proc.child && proc.child.length > 0) {
-            procs.push(proc)
-            procs.push(...getAllProcesses(proc.child))
-        }
-            
+        procs.push(proc)
     })
     return procs
 }

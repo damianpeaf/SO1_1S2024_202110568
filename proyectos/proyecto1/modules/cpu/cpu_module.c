@@ -25,26 +25,7 @@ uint64_t total_time_cpu;
 uint64_t total_usage;
 unsigned long usage_percentage;
 
-static void traverse_children(struct seq_file *file_proc, struct list_head *children) {
-    struct list_head *lstProcess;
-    struct task_struct *child;
-    int first_child = 1;
-
-    list_for_each(lstProcess, children) {
-        if (!first_child) { seq_printf(file_proc, ",\n");}
-        first_child = 0;
-
-        child = list_entry(lstProcess, struct task_struct, sibling);
-
-        seq_printf(file_proc, "        {\n");
-        seq_printf(file_proc, "          \"pid\": %d,\n", child->pid);
-        seq_printf(file_proc, "          \"name\": \"%s\",\n", child->comm);
-        seq_printf(file_proc, "          \"state\": %u,\n", child->__state);
-        seq_printf(file_proc, "          \"pidPadre\": %u,\n", child->parent->pid);
-        seq_printf(file_proc, "        }");
-    }
-}
-
+static void traverse_children(struct seq_file *file_proc, struct list_head *children);
 static int escribir_a_proc(struct seq_file *file_proc, void *v)
 {
     int running = 0;
@@ -112,6 +93,33 @@ static int escribir_a_proc(struct seq_file *file_proc, void *v)
     seq_printf(file_proc, "}\n");
 
     return 0;
+}
+
+static void traverse_children(struct seq_file *file_proc, struct list_head *children) {
+    struct list_head *lstProcess;
+    struct task_struct *child;
+    int first_child = 1;
+
+    list_for_each(lstProcess, children) {
+        if (!first_child) { seq_printf(file_proc, ",\n");}
+        first_child = 0;
+
+        child = list_entry(lstProcess, struct task_struct, sibling);
+
+        seq_printf(file_proc, "        {\n");
+        seq_printf(file_proc, "          \"pid\": %d,\n", child->pid);
+        seq_printf(file_proc, "          \"name\": \"%s\",\n", child->comm);
+        seq_printf(file_proc, "          \"state\": %u,\n", child->__state);
+        seq_printf(file_proc, "          \"pidPadre\": %u,\n", child->parent->pid);
+        if (!list_empty(&child->children)) {
+            seq_printf(file_proc, "          \"child\": [\n");
+            traverse_children(file_proc, &child->children);
+            seq_printf(file_proc, "\n          ]");
+        } else {
+            seq_printf(file_proc, "          \"child\": []");
+        }
+        seq_printf(file_proc, "        }");
+    }
 }
 
 static int abrir_aproc(struct inode *inode, struct file *file)

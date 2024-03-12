@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Pie } from "react-chartjs-2";
-import { apiUrl } from '@/utils/api';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -24,7 +23,7 @@ export const Realtime = () => {
 
     const getRamInfo = async () => {
         try {
-            const resp = await fetch(apiUrl+'/ram-info', {
+            const resp = await fetch('/api/ram-info', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -44,19 +43,15 @@ export const Realtime = () => {
 
     const getCpuInfo = async () => {
         try {
-            const resp = await fetch(apiUrl+'/cpu-info', {
+            const resp = await fetch('/api/cpu-info', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
             const data = await resp.json()
-            let percentage = ( data.total_usage / data.total_time_cpu) * 100
-            if (percentage<0) percentage *= -1
-            if(percentage>100) percentage = 100
-            console.log(percentage)
             setCpuData({
-                percentage
+                percentage: 100 - Number(data.idle)
             })
         } catch (error) {
             console.log(error)

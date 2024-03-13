@@ -1,11 +1,15 @@
 version: '3'
 
 services:
+
   frontend:
     build:
       context: ./frontend
     ports:
       - "80:80"
+    depends_on:
+      - backend
+
   backend:
     build:
       context: ./backend
@@ -13,6 +17,22 @@ services:
     privileged: true
     volumes:
       - /proc:/proc
-
     ports:
       - "8080:8080"
+    depends_on:
+      - database
+
+  database:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: so1-proyecto1
+      MYSQL_USER: so1-proyecto1
+      MYSQL_PASSWORD: so1-proyecto1
+    ports:
+      - "3306:3306"
+    volumes:
+      - so1-db-vol:/var/lib/mysql
+
+volumes:
+  so1-db-vol:

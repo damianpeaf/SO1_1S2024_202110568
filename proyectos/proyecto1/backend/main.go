@@ -127,7 +127,7 @@ func main() {
 	app.Get("/historical-info", func(c *fiber.Ctx) error {
 		results := HistoricalInfo{}
 
-		rows, err := db.Query("SELECT * FROM cpu_info")
+		rows, err := db.Query("SELECT * FROM cpu_info ORDER BY id DESC LIMIT 60")
 		if err != nil {
 			return c.SendString("Error al obtener el uso de la CPU")
 		}

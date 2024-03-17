@@ -3,11 +3,11 @@ version: '3'
 services:
 
   proxy:
-    image: nginx:latest
+    build:
+      context: ./proxy
+    image: damianpeaf/so1-proyecto1-proxy
     ports:
       - "80:80"
-    volumes:
-      - ./proxy/nginx.conf:/etc/nginx/nginx.conf:ro
     restart: always
     depends_on:
       - frontend
@@ -16,6 +16,7 @@ services:
   frontend:
     build:
       context: ./frontend
+    image: damianpeaf/so1-proyecto1-frontend
     ports:
       - "3000:3000"
     depends_on:
@@ -24,6 +25,7 @@ services:
   backend:
     build:
       context: ./backend
+    image: damianpeaf/so1-proyecto1-backend
     restart: always
     privileged: true
     volumes:
@@ -34,12 +36,9 @@ services:
       - database
 
   database:
-    image: mysql:5.7
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: so1-proyecto1
-      MYSQL_USER: so1-proyecto1
-      MYSQL_PASSWORD: so1-proyecto1
+    build:
+      context: ./db
+    image: damianpeaf/so1-proyecto1-db
     ports:
       - "3306:3306"
     volumes:

@@ -160,6 +160,61 @@ func main() {
 		return c.JSON(results)
 	})
 
+	// * Process handler
+
+	app.Get("/start-process", func(c *fiber.Ctx) error {
+		cmd := exec.Command("sleep", "infinity")
+		err := cmd.Start()
+		if err != nil {
+			return fiber.NewError(500, "Error al iniciar el proceso")
+		}
+
+		return c.JSON(fiber.Map{
+			"pid": cmd.Process.Pid,
+		})
+	})
+
+	app.Get("/stop-process", func(c *fiber.Ctx) error {
+		pid := c.Query("pid")
+		if pid == "" {
+			return fiber.NewError(400, "No se proporcionó el PID")
+		}
+		fmt.Println(pid)
+		cmd := exec.Command("kill", "-SIGSTOP", pid)
+		err := cmd.Run()
+		if err != nil {
+			return fiber.NewError(500, "Error al detener el proceso")
+		}
+		return c.SendString(fmt.Sprint("Proceso con PID ", pid, " detenido"))
+	})
+
+	app.Get("/resume-process", func(c *fiber.Ctx) error {
+		pid := c.Query("pid")
+		if pid == "" {
+			return fiber.NewError(400, "No se proporcionó el PID")
+		}
+		cmd := exec.Command("kill", "-SIGCONT", pid)
+		err := cmd.Run()
+		if err != nil {
+			return fiber.NewError(500, "Error al reanudar el proceso")
+		}
+		return c.SendString(fmt.Sprint("Proceso con PID ", pid, " reanudado"))
+	})
+
+	app.Get("/kill-process", func(c *fiber.Ctx) error {
+		pid := c.Query("pid")
+		if pid == "" {
+			return fiber.NewError(400, "No se proporcionó el PID")
+		}
+		cmd := exec.Command("kill", "-9", pid)
+		err := cmd.Run()
+		if err != nil {
+			return fiber.NewError(500, "Error al matar el proceso")
+		}
+		return c.SendString(fmt.Sprint("Proceso con PID ", pid, " matado"))
+	})
+
+	// Inicia la aplicación en el puerto 8080
 	go func() {
 		err := app.Listen(":8080")
 		if err != nil {

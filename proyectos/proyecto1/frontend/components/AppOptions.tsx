@@ -3,6 +3,7 @@ import {Tabs, Tab, Card, CardBody} from "@nextui-org/react";
 import { Realtime } from "./Realtime";
 import { Tree } from "./Tree";
 import { Historic } from "./Historic";
+import { Simulation } from "./Simulation";
 
 export const AppOptions = () => {
   return (
@@ -32,7 +33,7 @@ export const AppOptions = () => {
       <Tab key="simulation" title="Simulación de procesos">
         <Card>
           <CardBody>
-            <Tree />
+            <Simulation />
           </CardBody>
         </Card>  
       </Tab>

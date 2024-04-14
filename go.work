@@ -2,4 +2,8 @@ go 1.20
 
 use ./hojas-de-trabajo/ht-1/app
 
+use ./tareas/tarea-4/client
+
+use ./tareas/tarea-4/server
+
 use ./proyectos/proyecto1/backend

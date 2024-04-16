@@ -6,4 +6,8 @@ use ./tareas/tarea-4/client
 
 use ./tareas/tarea-4/server
 
+use ./proyectos/proyecto2/grpc-client
+
+use ./proyectos/proyecto2/grpc-server
+
 use ./proyectos/proyecto1/backend

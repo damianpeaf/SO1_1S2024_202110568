@@ -99,13 +99,13 @@ func (s *server) ReturnInfo(ctx context.Context, in *pb.RequestId) (*pb.ReplyInf
 		Rank:  in.GetRank(),
 	}
 	fmt.Println(data)
-	sendVote(data)
+	// sendVote(data)
 	return &pb.ReplyInfo{Info: "Hola cliente, recibí el comentario"}, nil
 }
 
 func main() {
 
-	defer producer.Close()
+	// defer producer.Close()
 
 	listen, err := net.Listen("tcp", getPort())
 	if err != nil {
@@ -114,7 +114,7 @@ func main() {
 	s := grpc.NewServer()
 	pb.RegisterGetInfoServer(s, &server{})
 
-	kafkaConnection()
+	// kafkaConnection()
 
 	if err := s.Serve(listen); err != nil {
 		log.Fatalln(err)

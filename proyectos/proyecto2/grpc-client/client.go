@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -47,6 +48,7 @@ func processVote(c *fiber.Ctx) error {
 	if e != nil {
 		return e
 	}
+	fmt.Println("Processing vote")
 
 	voto := VoteStruct{
 		Name:  data["name"],
@@ -60,6 +62,8 @@ func processVote(c *fiber.Ctx) error {
 }
 
 func sendToServer(voto VoteStruct) {
+	fmt.Println("Enviando voto al server")
+	fmt.Println(getServerURL())
 	conn, err := grpc.Dial(getServerURL(), grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithBlock())
 	if err != nil {
@@ -89,6 +93,10 @@ func sendToServer(voto VoteStruct) {
 
 func main() {
 	app := fiber.New()
+
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error cargando el archivo .env: %s", err)
+	}
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{

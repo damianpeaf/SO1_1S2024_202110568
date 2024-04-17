@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+
+  grpc-client:
+    build:
+      context: ./grpc-client
+    image: damianpeaf/so1-proyecto2-grpc-client
+    restart: always
+    ports:
+      - "8080:8080"
+      
+  grpc-server:
+    build:
+      context: ./grpc-server
+    image: damianpeaf/so1-proyecto2-grpc-server
+    restart: always
+    ports:
+      - "3001:3001"

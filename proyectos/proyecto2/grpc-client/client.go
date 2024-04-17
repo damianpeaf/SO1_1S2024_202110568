@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -25,7 +24,7 @@ type VoteStruct struct {
 func getPort() string {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = ":8080"
+		port = ":3000"
 	} else {
 		port = ":" + port
 	}
@@ -93,10 +92,6 @@ func sendToServer(voto VoteStruct) {
 
 func main() {
 	app := fiber.New()
-
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error cargando el archivo .env: %s", err)
-	}
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{

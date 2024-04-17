@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: so1-proyecto2
+spec: {}
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: grpc-producer
+  name: grpc-producer
+  namespace: so1-proyecto2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpc-producer
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: grpc-producer
+    spec:
+      containers:
+        - name: grpc-client
+          image: damianpeaf/so1-proyecto2-grpc-client
+          ports:
+            - containerPort: 3000
+        - name: grpc-server
+          image: damianpeaf/so1-proyecto2-grpc-server
+          ports:
+            - containerPort: 3001
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: grpc-producer
+  name: grpc-producer-svc
+  namespace: so1-proyecto2
+spec:
+  ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app: grpc-producer
+status:
+  loadBalancer: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grpc-producer-ingress
+  namespace: so1-proyecto2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: 10.110.69.0.nip.io
+      http:
+        paths:
+          - pathType: Prefix
+            backend:
+              service:
+                name: grpc-producer-svc
+                port:
+                  number: 3000
+            path: /

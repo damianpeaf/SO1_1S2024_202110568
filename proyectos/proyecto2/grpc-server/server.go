@@ -10,7 +10,6 @@ import (
 	"os"
 
 	"github.com/IBM/sarama"
-	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 )
 
@@ -38,11 +37,6 @@ type Data struct {
 
 func getKafkaBrokerURL() string {
 	defaultURL := "localhost:9092"
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error cargando el archivo .env: %s", err)
-		return defaultURL
-	}
-
 	url := os.Getenv("KAFKA_BROKER")
 	if url == "" {
 		return defaultURL
@@ -53,10 +47,6 @@ func getKafkaBrokerURL() string {
 var producer sarama.SyncProducer
 
 func kafkaConnection() {
-
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error cargando el archivo .env: %s", err)
-	}
 
 	broker := getKafkaBrokerURL()
 	config := sarama.NewConfig()

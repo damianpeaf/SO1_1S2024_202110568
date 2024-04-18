@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: golang-consumer
+  name: golang-consumer
+  namespace: so1-proyecto2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: golang-consumer
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: golang-consumer
+    spec:
+      containers:
+        - name: golang-consumer
+          image: damianpeaf/so1-proyecto2-consumer
+          imagePullPolicy: Always
+          env:
+            - name: KAFKA_BROKER
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-boostrap-secret
+                  key: bootstrap.servers
+
+status: {}

@@ -17,3 +17,9 @@ services:
     restart: always
     ports:
       - "3001:3001"
+
+  consumer:
+    build:
+      context: ./consumer
+    image: damianpeaf/so1-proyecto2-consumer
+    restart: always

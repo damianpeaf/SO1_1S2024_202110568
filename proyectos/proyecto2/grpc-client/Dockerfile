@@ -11,8 +11,6 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o app 
 
 FROM alpine:latest as release
 
-RUN apk update && apk add sysstat
-
 WORKDIR /app
 
 COPY --from=build /go/src/.env ./.env

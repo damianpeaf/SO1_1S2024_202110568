@@ -9,7 +9,7 @@ import (
 	"net"
 	"os"
 
-	"github.com/IBM/sarama"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"google.golang.org/grpc"
 )
 
@@ -44,24 +44,6 @@ func getKafkaBrokerURL() string {
 	return url
 }
 
-var producer sarama.SyncProducer
-
-func kafkaConnection() {
-
-	broker := getKafkaBrokerURL()
-	config := sarama.NewConfig()
-	config.Producer.Return.Successes = true
-	config.Producer.RequiredAcks = sarama.WaitForAll
-	config.Producer.Retry.Max = 5
-
-	var err error
-	producer, err = sarama.NewSyncProducer([]string{broker}, config)
-	if err != nil {
-		log.Fatalln("Error al conectar con Kafka: ", err)
-	}
-
-}
-
 func sendVote(data Data) {
 
 	jsonData, err := json.Marshal(data)
@@ -69,15 +51,29 @@ func sendVote(data Data) {
 		log.Fatalln("Error al convertir a JSON: ", err)
 	}
 
-	msg := &sarama.ProducerMessage{
-		Topic: "votes",
-		Value: sarama.StringEncoder(jsonData),
-	}
-	partition, offset, err := producer.SendMessage(msg)
+	topic := "votes"
+	producer, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": getKafkaBrokerURL()})
 	if err != nil {
-		log.Fatalln("Error al enviar mensaje a Kafka: ", err)
+		log.Fatalln("Error al crear el productor: ", err)
 	}
-	fmt.Printf("Mensaje enviado a partición %d en offset %d\n", partition, offset)
+
+	defer producer.Close()
+
+	deliveryChan := make(chan kafka.Event)
+
+	producer.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		Value:          jsonData,
+	}, deliveryChan)
+
+	e := <-deliveryChan
+	m := e.(*kafka.Message)
+
+	if m.TopicPartition.Error != nil {
+		log.Fatalln("Error al enviar mensaje: ", m.TopicPartition.Error)
+	} else {
+		fmt.Println("Mensaje enviado a la partición: ", m.TopicPartition)
+	}
 }
 
 func (s *server) ReturnInfo(ctx context.Context, in *pb.RequestId) (*pb.ReplyInfo, error) {
@@ -89,13 +85,11 @@ func (s *server) ReturnInfo(ctx context.Context, in *pb.RequestId) (*pb.ReplyInf
 		Rank:  in.GetRank(),
 	}
 	fmt.Println(data)
-	// sendVote(data)
+	sendVote(data)
 	return &pb.ReplyInfo{Info: "Hola cliente, recibí el comentario"}, nil
 }
 
 func main() {
-
-	// defer producer.Close()
 
 	listen, err := net.Listen("tcp", getPort())
 	if err != nil {
@@ -103,8 +97,6 @@ func main() {
 	}
 	s := grpc.NewServer()
 	pb.RegisterGetInfoServer(s, &server{})
-
-	// kafkaConnection()
 
 	if err := s.Serve(listen); err != nil {
 		log.Fatalln(err)

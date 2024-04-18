@@ -10,4 +10,6 @@ use ./proyectos/proyecto2/grpc-client
 
 use ./proyectos/proyecto2/grpc-server
 
+use ./proyectos/proyecto2/consumer
+
 use ./proyectos/proyecto1/backend

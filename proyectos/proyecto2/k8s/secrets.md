@@ -17,6 +17,8 @@ kubectl create secret generic redis-secret \
   --from-literal=url=redis-svc:6379 \
   -n so1-proyecto2
 
-kubectl create secret generic redis-secret \
-  --from-literal=password=R3d1sP4ssw0rd
+kubectl create secret generic redis-password-secret \
+  --from-literal=password=R3d1sP4ssw0rd \
+  -n so1-proyecto2
+```bash
 ```

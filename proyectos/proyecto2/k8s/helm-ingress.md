@@ -9,6 +9,6 @@ helm install nginx-ingress ingress-nginx/ingress-nginx -n nginx-ingress
 
 Obtener la ip del nodo master
 ```bash
-minikube tunnel # Para asignar ip al servicio
+# minikube tunnel # Para asignar ip al servicio
 kubectl get services -n nginx-ingress
 ```

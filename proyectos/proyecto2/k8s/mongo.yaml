@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-db
+  namespace: so1-proyecto2
+  labels:
+    app: mongo-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-db
+  template:
+    metadata:
+      labels:
+        app: mongo-db
+    spec:
+      containers:
+        - name: mongo
+          image: mongo
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: root
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: m0nG0p4ssw0rD
+          resources:
+            limits:
+              cpu: "0.5"
+              memory: "500Mi"
+            requests:
+              cpu: "0.3"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc-lb
+  namespace: so1-proyecto2
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 27017
+      targetPort: 27017
+  selector:
+    app: mongo-db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc-clusterip
+  namespace: so1-proyecto2
+spec:
+  type: ClusterIP
+  ports:
+    - port: 27017
+      targetPort: 27017
+  selector:
+    app: mongo-db

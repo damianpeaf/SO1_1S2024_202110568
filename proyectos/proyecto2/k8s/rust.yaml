@@ -2,23 +2,23 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: grpc-producer
-  name: grpc-producer
+    app: rust-producer
+  name: rust-producer
   namespace: so1-proyecto2
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: grpc-producer
+      app: rust-producer
   strategy: {}
   template:
     metadata:
       labels:
-        app: grpc-producer
+        app: rust-producer
     spec:
       containers:
-        - name: grpc-client
-          image: damianpeaf/so1-proyecto2-grpc-client
+        - name: rust-client
+          image: damianpeaf/so1-proyecto2-rust-client
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -26,8 +26,8 @@ spec:
             limits:
               cpu: "0.2"
               memory: "128Mi"
-        - name: grpc-server
-          image: damianpeaf/so1-proyecto2-grpc-server
+        - name: rust-server
+          image: damianpeaf/so1-proyecto2-rust-server
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
@@ -47,8 +47,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: grpc-producer
-  name: grpc-producer-svc
+    app: rust-producer
+  name: rust-producer-svc
   namespace: so1-proyecto2
 spec:
   ports:
@@ -56,6 +56,6 @@ spec:
       protocol: TCP
       targetPort: 3000
   selector:
-    app: grpc-producer
+    app: rust-producer
 status:
   loadBalancer: {}

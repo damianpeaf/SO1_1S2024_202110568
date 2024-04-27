@@ -37,3 +37,19 @@ services:
     restart: always
     ports:
       - "3000:3000"
+
+  rust-client:
+    build:
+      context: ./rust-client
+    image: damianpeaf/so1-proyecto2-rust-client
+    restart: always
+    ports:
+      - "3000:3000"
+
+  rust-server:
+    build:
+      context: ./rust-server
+    image: damianpeaf/so1-proyecto2-rust-server
+    restart: always
+    ports:
+      - "3001:3001"

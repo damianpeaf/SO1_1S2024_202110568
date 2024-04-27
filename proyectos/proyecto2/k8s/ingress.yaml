@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grpc-producer-ingress
+  namespace: so1-proyecto2
+spec:
+  ingressClassName: nginx
+  rules:
+    # ! Change this for lb-external-ip
+    - host: 10.110.69.0.nip.io
+      http:
+        paths:
+          - pathType: Prefix
+            backend:
+              service:
+                name: grpc-producer-svc
+                port:
+                  number: 3000
+            path: /grpc
+          - pathType: Prefix
+            backend:
+              service:
+                name: rust-producer-svc
+                port:
+                  number: 3000
+            path: /rust

@@ -6,8 +6,7 @@ datasources:
     access: proxy
     isDefault: true
     orgId: 1
-    version: 1
-    url: redis://redis:6379
+    url: redis://redis-svc:6379
     uid: R3d1sD4t4S0urc3
     jsonData:
       poolSize: 5
@@ -15,5 +14,7 @@ datasources:
       pingInterval: 0
       pipelineWindow: 0
     editable: true
+    secureJsonData:
+      password: R3d1sP4ssw0rd
 
     apiVersion: 1

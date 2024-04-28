@@ -50,7 +50,7 @@ async fn main() {
     //rocket::build().mount("/", routes![vote]).launch().await.unwrap();
     rocket::custom(config)
     .attach(cors)
-    .mount("/", rocket::routes![vote])
+    .mount("/rust", rocket::routes![vote])
     .launch()
     .await
     .unwrap();

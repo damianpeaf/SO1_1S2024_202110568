@@ -27,10 +27,7 @@ spec:
               value: m0nG0p4ssw0rD
           resources:
             limits:
-              cpu: "0.5"
-              memory: "500Mi"
-            requests:
-              cpu: "0.3"
+              cpu: "300m"
               memory: "256Mi"
 ---
 apiVersion: v1

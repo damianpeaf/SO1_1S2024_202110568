@@ -20,5 +20,4 @@ kubectl create secret generic redis-secret \
 kubectl create secret generic redis-password-secret \
   --from-literal=password=R3d1sP4ssw0rd \
   -n so1-proyecto2
-```bash
 ```

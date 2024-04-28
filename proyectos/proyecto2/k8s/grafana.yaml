@@ -1,3 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-ds
+  namespace: so1-proyecto2
+data: {}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,17 +30,21 @@ spec:
               containerPort: 3000
           resources:
             limits:
-              cpu: 250m
-              memory: 750Mi
-            requests:
-              cpu: 250m
-              memory: 750Mi
+              cpu: "300m"
+              memory: "512Mi"
           volumeMounts:
             - mountPath: /var/lib/grafana
               name: grafana-storage
+            - mountPath: /etc/grafana/provisioning/datasources
+              name: grafana-ds
+              readOnly: false
       volumes:
         - name: grafana-storage
           emptyDir: {}
+        - name: grafana-ds
+          configMap:
+            defaultMode: 420
+            name: grafana-ds
 ---
 apiVersion: v1
 kind: Service

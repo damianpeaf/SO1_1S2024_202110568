@@ -7,7 +7,7 @@ spec:
   ingressClassName: nginx
   rules:
     # ! Change this for lb-external-ip
-    - host: 34.29.145.68.nip.io
+    - host: 35.188.145.50.nip.io
       http:
         paths:
           - pathType: Prefix

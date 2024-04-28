@@ -12,22 +12,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    run: redis
+    app: redis
   name: redis
   namespace: so1-proyecto2
 spec:
   replicas: 1
   selector:
     matchLabels:
-      run: redis
+      app: redis
   template:
     metadata:
       labels:
-        run: redis
+        app: redis
     spec:
       containers:
         - name: redis
-          image: redis:6.2
+          image: redis
           command:
             - redis-server
             - /redisconf/redis.conf
@@ -35,8 +35,8 @@ spec:
             - containerPort: 6379
           resources:
             limits:
-              cpu: "0.2"
-              memory: "128Mi"
+              cpu: "300m"
+              memory: "256Mi"
           volumeMounts:
             - mountPath: /redisconf
               name: config
@@ -52,7 +52,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    run: redis
+    app: redis
   name: redis-svc
   namespace: so1-proyecto2
 spec:
@@ -61,5 +61,18 @@ spec:
       protocol: TCP
       targetPort: 6379
   selector:
-    run: redis
+    app: redis
   type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-svc-lb
+  namespace: so1-proyecto2
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 6379
+      targetPort: 6379
+  selector:
+    app: redis

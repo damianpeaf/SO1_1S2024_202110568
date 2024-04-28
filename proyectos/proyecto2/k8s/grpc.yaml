@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: grpc-client
-          image: damianpeaf/so1-proyecto2-grpc-client
+          image: damianpeaf/so1-proyecto2-grpc-client:0.1
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -33,7 +33,7 @@ spec:
             - containerPort: 3001
           resources:
             limits:
-              cpu: "0.2"
+              cpu: "100m"
               memory: "128Mi"
           env:
             - name: KAFKA_BROKER

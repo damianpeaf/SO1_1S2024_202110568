@@ -15,6 +15,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"context"
+
 	"github.com/go-redis/redis/v8"
 )
 
@@ -61,19 +63,29 @@ func getRedisPassword() string {
 	return password
 }
 
+var ctx = context.Background()
+
 func main() {
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers": getKafkaBrokerURL(),
 		"group.id":          "consumer-default-group",
 		"auto.offset.reset": "earliest",
 	})
+	if err != nil {
+		log.Fatalf("Error al crear el consumidor: %s\n", err)
+	}
 
 	mongoOptions := options.Client().ApplyURI(getMongoURL())
 
-	mongoClient, err := mongo.Connect(nil, mongoOptions)
+	mongoClient, err := mongo.Connect(ctx, mongoOptions)
 	if err != nil {
 		log.Fatalf("Error al conectar a la base de datos: %s\n", err)
 	}
+
+	// redis addr
+	log.Print(getRedisURL())
+	// redis password
+	log.Print(getRedisPassword())
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     getRedisURL(),
@@ -81,10 +93,16 @@ func main() {
 		DB:       0,
 	})
 
+	// Test redis connection
+	_, err = rdb.Ping(ctx).Result()
+	if err != nil {
+		log.Fatalf("Error al conectar a redis: %s\n", err)
+	}
+
 	fmt.Println("Conectado a la base de datos")
 
 	defer func() {
-		err := mongoClient.Disconnect(nil)
+		err := mongoClient.Disconnect(ctx)
 		if err != nil {
 			log.Fatalf("Error al desconectar de la base de datos: %s\n", err)
 		}
@@ -127,7 +145,7 @@ func main() {
 			}
 
 			collection := mongoClient.Database("so1_proyecto2").Collection("votes")
-			_, err = collection.InsertOne(nil, vote)
+			_, err = collection.InsertOne(ctx, vote)
 			if err != nil {
 				log.Printf("Error al insertar en la base de datos: %s\n", err)
 				continue
@@ -135,16 +153,20 @@ func main() {
 
 			// Grabando en redis los votos por banda y por album
 
-			// Votos por banda
-			err = rdb.HIncrBy(nil, "votos_banda", vote.Name, 1).Err()
-			if err != nil {
-				log.Printf("Error al incrementar votos por banda: %s\n", err)
-			}
+			if rdb != nil {
+				// Votos por banda
+				err = rdb.HIncrBy(ctx, "votos_banda", vote.Name, 1).Err()
+				if err != nil {
+					log.Printf("Error al incrementar votos por banda: %s\n", err)
+				}
 
-			// Votos por album
-			err = rdb.HIncrBy(nil, "votos_album", vote.Album, 1).Err()
-			if err != nil {
-				log.Printf("Error al incrementar votos por album: %s\n", err)
+				// Votos por album
+				err = rdb.HIncrBy(ctx, "votos_album", vote.Album, 1).Err()
+				if err != nil {
+					log.Printf("Error al incrementar votos por album: %s\n", err)
+				}
+			} else {
+				log.Printf("No se pudo conectar a redis")
 			}
 
 			log.Printf("Voto insertado: %s\n", vote)

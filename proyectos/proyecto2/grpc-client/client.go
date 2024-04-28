@@ -92,13 +92,19 @@ func sendToServer(voto VoteStruct) {
 
 func main() {
 	app := fiber.New()
+	fmt.Println("Server running on port " + getPort())
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"res": "hola mundo",
 		})
 	})
-	app.Post("/vote", processVote)
+	app.Get("/grpc", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"res": "grpc - API",
+		})
+	})
+	app.Post("/grpc", processVote)
 
 	err := app.Listen(getPort())
 	if err != nil {

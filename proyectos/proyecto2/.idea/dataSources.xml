@@ -8,11 +8,18 @@
       <jdbc-url>mongodb://10.103.137.185:27017</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="GKE-Cluster-SO1" uuid="e3d9e6be-0ae4-437f-a82a-ea8a23c8f5f9">
+    <data-source source="LOCAL" name="Mongo Cluster" uuid="e3d9e6be-0ae4-437f-a82a-ea8a23c8f5f9">
       <driver-ref>mongo</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.dbschema.MongoJdbcDriver</jdbc-driver>
-      <jdbc-url>mongodb://34.41.247.102:27017</jdbc-url>
+      <jdbc-url>mongodb://35.239.4.182:27017</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="0@23.251.156.237" uuid="bd1d7703-6641-4688-b225-709bf594a492">
+      <driver-ref>redis</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>jdbc.RedisDriver</jdbc-driver>
+      <jdbc-url>jdbc:redis://23.251.156.237:6379/0</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

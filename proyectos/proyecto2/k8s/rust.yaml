@@ -33,7 +33,7 @@ spec:
             - containerPort: 3001
           resources:
             limits:
-              cpu: "0.2"
+              cpu: "100m"
               memory: "128Mi"
           env:
             - name: KAFKA_BROKER

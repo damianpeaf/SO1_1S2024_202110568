@@ -1,5 +1,6 @@
 use rocket::{routes, serde::json::Json};
 use rocket::post;
+use rocket::get;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use rocket::config::SecretKey;
@@ -13,7 +14,7 @@ struct Data {
     year: String,
 }
 
-#[post("/vote", data = "<data>")]
+#[post("/rust", data = "<data>")]
 async fn vote(data: Json<Data>) -> String {
     let client = Client::new();
 
@@ -27,6 +28,11 @@ async fn vote(data: Json<Data>) -> String {
         Ok(_) => "Data sent successfully!".to_string(),
         Err(e) => format!("Failed to send data: {}", e),
     }
+}
+
+#[get("/rust")]
+async fn get_data() -> String {
+    "Hello from Rust client!".to_string()
 }
 
 #[rocket::main]
@@ -46,11 +52,11 @@ async fn main() {
         secret_key: secret_key.unwrap(), // Desempaqueta la clave secreta generada
         ..rocket::Config::default()
     };
+
     //----------------------------------------------------------------------------
-    //rocket::build().mount("/", routes![vote]).launch().await.unwrap();
     rocket::custom(config)
     .attach(cors)
-    .mount("/rust", rocket::routes![vote])
+    .mount("/", rocket::routes![vote, get_data])
     .launch()
     .await
     .unwrap();

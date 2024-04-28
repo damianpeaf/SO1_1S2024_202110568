@@ -35,7 +35,7 @@ class trafficData(HttpUser):
     def sendMessage(self):
         data = self.reader.getData()
         if data is not None:
-            res = self.client.post("/", json=data)
+            res = self.client.post("", json=data)
             response = res.json()
             print(response)
         else:

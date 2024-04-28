@@ -345,6 +345,185 @@ spec:
 
 Este deployment se encarga de desplegar un contenedor con el servicio de Grafana, que se utiliza para crear dashboards y visualizar métricas y estadísticas del sistema. Se utiliza un volumen local para almacenar los datos de Grafana. La imagen utilizada es `damianpeaf/so1-proyecto2-grafana`.
 
+
+## Servicios
+
+### Grpc
+
+ ```yaml
+ apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: grpc-producer
+  name: grpc-producer-svc
+  namespace: so1-proyecto2
+spec:
+  ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app: grpc-producer
+status:
+  loadBalancer: {}
+```
+
+Este servicio expone el puerto 3000 del deployment `grpc-producer` para permitir la comunicación con el cliente gRPC. Se utiliza el protocolo TCP para la comunicación y se establece un balanceador de carga para distribuir el tráfico entre los pods del deployment.
+
+### Rust
+
+ ```yaml
+ apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: rust-producer
+  name: rust-producer-svc
+  namespace: so1-proyecto2
+spec:
+  ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app: rust-producer
+status:
+  loadBalancer: {}
+```
+
+Este servicio expone el puerto 3000 del deployment `rust-producer` para permitir la comunicación con el cliente Rust. Se utiliza el protocolo TCP para la comunicación y se establece un balanceador de carga para distribuir el tráfico entre los pods del deployment.
+
+### Redis
+
+ ```yaml
+ apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: redis
+  name: redis-svc
+  namespace: so1-proyecto2
+spec:
+  ports:
+    - port: 6379
+      protocol: TCP
+      targetPort: 6379
+  selector:
+    app: redis
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-svc-lb
+  namespace: so1-proyecto2
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 6379
+      targetPort: 6379
+  selector:
+    app: redis
+```
+
+Estos dos servicios exponen el puerto 6379 del deployment `redis` para permitir la comunicación con el servicio de Redis. Se utiliza el protocolo TCP para la comunicación y se establece un balanceador de carga para distribuir el tráfico entre los pods del deployment.
+
+### MongoDB
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc-lb
+  namespace: so1-proyecto2
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 27017
+      targetPort: 27017
+  selector:
+    app: mongo-db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc-clusterip
+  namespace: so1-proyecto2
+spec:
+  type: ClusterIP
+  ports:
+    - port: 27017
+      targetPort: 27017
+  selector:
+    app: mongo-db
+```
+
+Estos dos servicios exponen el puerto 27017 del deployment `mongo-db` para permitir la comunicación con el servicio de MongoDB. Se utiliza el protocolo TCP para la comunicación y se establece un balanceador de carga para distribuir el tráfico entre los pods del deployment.
+
+
+### Grafana
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-svc
+  namespace: so1-proyecto2
+spec:
+  selector:
+    app: grafana
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: LoadBalancer
+```
+
+Este servicio expone el puerto 80 del deployment `grafana` para permitir la comunicación con el servicio de Grafana. Se utiliza el protocolo TCP para la comunicación y se establece un balanceador de carga para distribuir el tráfico entre los pods del deployment.
+
 ### Ejemplo del funcionamiento
 
+1. Seleccionar en locust el tipo de enpoint a utilizar gRPC o Rust.
+
+![gRPC](images/locust.png)
+
+2. Locust realiza laspeticiones
+
+![Kafka](images/rust-requests.png)
+
+3. El consumidor manda los datos a Redis y MongoDB y pueden ser visualizados en Grafana
+
+![Grafana](images/grafana.png)
+
+
 ### Conclusiones
+
+
+#### ¿Qué servicio se tardó menos? ¿Por qué?
+
+Resultados de las pruebas de rendimiento:
+
+- Rust
+
+![Rust](images/rust-result.png)
+
+- gRPC
+
+![gRPC](images/grpc-result.png)
+
+El servicio que se tardó menos fue el implementado en Go que utiliza gRPC para la comunicación entre cliente y servidor. Esto se debe a que gRPC utiliza HTTP/2 como su protocolo de transporte subyacente, mientras que el servicio en Rust utiliza HTTP para la comunicación. HTTP/2 ofrece varias mejoras sobre HTTP/1.x, como la multiplexación de múltiples solicitudes en una única conexión TCP, compresión de cabeceras y streams, lo que puede resultar en un rendimiento mejorado y menor latencia, especialmente en aplicaciones con muchas solicitudes concurrentes o transferencia de datos pesados.
+
+#### ¿En qué casos utilizarías grpc y en qué casos utilizarías wasm?
+
+1. **gRPC**:
+   - **Alta velocidad y eficiencia**: gRPC es ideal cuando la velocidad y la eficiencia son críticas, especialmente en sistemas distribuidos donde se necesitan comunicaciones de alto rendimiento entre servicios.
+   - **Aplicaciones distribuidas**: es una excelente opción para sistemas distribuidos y microservicios donde se necesita una comunicación eficiente entre diferentes componentes.
+   - **Tipado fuerte**: gRPC utiliza gRPC utiliza Protobuf o FlatBuffers para la serialización de datos, lo que proporciona un sistema de tipado fuerte y una interoperabilidad mejorada entre diferentes lenguajes de programación.
+
+2. **WebAssembly (Wasm)**:
+   - **Portabilidad**: Wasm es útil cuando necesitas portabilidad y quieres ejecutar código en múltiples plataformas y entornos de ejecución sin preocuparte por el lenguaje de programación subyacente.
+   - **Aplicaciones web modernas**: es especialmente útil en el desarrollo de aplicaciones web modernas donde se pueden ejecutar partes del código en el navegador del cliente para mejorar el rendimiento y la experiencia del usuario.
+   - **Extensibilidad**: Wasm es una excelente opción para extender aplicaciones existentes con módulos escritos en otros lenguajes de programación y ejecutarlos de manera segura en un entorno de navegador.
+
+En resumen, gRPC es preferible en casos donde se necesita una comunicación rápida y eficiente entre servicios distribuidos, mientras que Wasm es útil para aplicaciones web modernas que requieren portabilidad y extensibilidad.
